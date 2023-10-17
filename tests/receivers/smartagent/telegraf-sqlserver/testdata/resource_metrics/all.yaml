@@ -25,6 +25,8 @@ resource_metrics:
             type: IntGauge
           - name: sqlserver_memory_clerks.size_kb.in-memory_oltp
             type: IntGauge
+          - name: sqlserver_memory_clerks.size_kb.lock_manager_object_store
+            type: IntGauge
           - name: sqlserver_memory_clerks.size_kb.log_pool
             type: IntGauge
           - name: sqlserver_memory_clerks.size_kb.memoryclerk_sqltrace
