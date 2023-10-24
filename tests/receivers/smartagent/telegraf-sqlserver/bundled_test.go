@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"path"
 	"runtime"
 	"testing"
 
@@ -28,6 +29,19 @@ func TestMssqlDockerObserver(t *testing.T) {
 	if runtime.GOOS == "darwin" {
 		t.Skip("unable to share sockets between mac and d4m vm: https://github.com/docker/for-mac/issues/483#issuecomment-758836836")
 	}
+
+	server := testutils.NewContainer().WithContext(
+		path.Join(".", "testdata", "server"),
+	).WithExposedPorts("1433:1433").WithName("sql-server").WithNetworks(
+		"mssql",
+	).WillWaitForPorts("1433").WillWaitForLogs(
+		"SQL Server is now ready for client connections.", "Recovery is complete.")
+
+	client := testutils.NewContainer().WithContext(
+		path.Join(".", "testdata", "client"),
+	).WithName("sql-client").WithNetworks("mssql").WillWaitForLogs("name", "signalfxagent")
+
+	containers := []testutils.Container{server, client}
 
 	//testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", containers, nil)
 	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml",
