@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"fmt"
 	"path"
 	"runtime"
 	"testing"
@@ -49,11 +50,8 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				cc.Container = cc.Container.WithExposedPorts("1433:1433")
-				cc.Container = cc.Container.WithName("sql-server")
-				cc.Container = cc.Container.WithNetworks("mssql")
-				cc.Container = cc.Container.WillWaitForPorts("1433")
-				cc.Container = cc.Container.WillWaitForLogs("SQL Server is now ready for client connections.", "Recovery is complete.")
+				cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
+				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 				return cc
 			},
 			func(collector testutils.Collector) testutils.Collector {
