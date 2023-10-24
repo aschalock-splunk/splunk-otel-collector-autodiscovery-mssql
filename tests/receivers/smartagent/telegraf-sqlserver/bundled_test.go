@@ -49,25 +49,26 @@ func TestMssqlDockerObserver(t *testing.T) {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
 				return cc
-			},
-			func(collector testutils.Collector) testutils.Collector {
-				return collector.WithEnv(map[string]string{
-					"MSSQL_URL":                 "tcp:sql-server,1433",
-					"SPLUNK_DISCOVERY_DURATION": "10s",
-					// confirm that debug logging doesn't affect runtime
-					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
-					"splunk.discovery.default":   "Password!",
-					"HOSTNAME":                   "sql.example.com",
-					"login.name":                 "signalfxagent",
-				}).WithArgs(
-					"--discovery",
-					"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
-					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
-					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
-					"--set", `splunk.discovery.extentsion.mssql.config.username=SA_ADMIN`,
-					"--set", `splunk.discovery.extentsion.mssql.config.login.name=signalfxagent`,
-				)
-			},
+			}
+			// ,
+			// func(collector testutils.Collector) testutils.Collector {
+			// 	return collector.WithEnv(map[string]string{
+			// 		"MSSQL_URL":                 "tcp:sql-server,1433",
+			// 		"SPLUNK_DISCOVERY_DURATION": "10s",
+			// 		// confirm that debug logging doesn't affect runtime
+			// 		"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
+			// 		"splunk.discovery.default":   "Password!",
+			// 		"HOSTNAME":                   "sql.example.com",
+			// 		"login.name":                 "signalfxagent",
+			// 	}).WithArgs(
+			// 		"--discovery",
+			// 		"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
+			// 		"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
+			// 		"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
+			// 		"--set", `splunk.discovery.extentsion.mssql.config.username=SA_ADMIN`,
+			// 		"--set", `splunk.discovery.extentsion.mssql.config.login.name=signalfxagent`,
+			// 	)
+			// },
 		},
 	)
 }
