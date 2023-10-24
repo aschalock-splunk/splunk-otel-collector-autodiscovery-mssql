@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -14,18 +13,13 @@ import (
 	"github.com/mitchellh/hashstructure"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/shirou/gopsutil/v3/common"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/sources"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/validation"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/signalfx/signalfx-agent/pkg/utils/hostfs"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 const (
-	TraceExportFormatSAPM   = "sapm"
-	TraceExportFormatZipkin = "zipkin"
+	TraceExportFormatSAPM = "sapm"
 )
 
 // Config is the top level config struct for configurations that are common to all platforms
@@ -167,58 +161,6 @@ type Config struct {
 	SysPath string `yaml:"sysPath" default:"/sys"`
 }
 
-func (c *Config) initialize() (*Config, error) {
-	if c.SignalFxRealm != "" {
-		if c.IngestURL == "" {
-			c.IngestURL = fmt.Sprintf("https://ingest.%s.signalfx.com", c.SignalFxRealm)
-		}
-		if c.APIURL == "" {
-			c.APIURL = fmt.Sprintf("https://api.%s.signalfx.com", c.SignalFxRealm)
-		}
-	}
-
-	if c.BundleDir == "" {
-		c.BundleDir = os.Getenv(constants.BundleDirEnvVar)
-	}
-	if c.BundleDir == "" {
-		exePath, err := os.Executable()
-		if err != nil {
-			panic("Cannot determine agent executable path, cannot continue")
-		}
-		c.BundleDir, err = filepath.Abs(filepath.Join(filepath.Dir(exePath), ".."))
-		if err != nil {
-			panic("Cannot determine absolute path of executable parent dir " + exePath)
-		}
-	}
-
-	c.propagateValuesDown()
-
-	if err := c.validate(); err != nil {
-		return nil, fmt.Errorf("configuration is invalid: %v", err)
-	}
-
-	c.Writer.initialize()
-	c.setupEnvironment()
-
-	return c, nil
-}
-
-// Setup envvars that will be used by collectd to use the bundled dependencies
-// instead of looking to the normal system paths.
-func (c *Config) setupEnvironment() {
-	os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
-
-	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jre"))
-	// set the environment variables for gopsutil based on configured values
-	hostfs.SetEnvMap(common.EnvMap{
-		common.HostProcEnvKey: c.ProcPath,
-		common.HostEtcEnvKey:  c.EtcPath,
-		common.HostVarEnvKey:  c.VarPath,
-		common.HostRunEnvKey:  c.RunPath,
-		common.HostSysEnvKey:  c.SysPath,
-	})
-}
-
 // Validate everything that we can about the main config
 func (c *Config) validate() error {
 	if err := validation.ValidateStruct(c); err != nil {
@@ -258,46 +200,6 @@ func (c *Config) validate() error {
 	}
 
 	return c.Writer.Validate()
-}
-
-// Send values from the top of the config down to nested configs that might
-// need them
-func (c *Config) propagateValuesDown() {
-	for i := range c.Monitors {
-		if c.Monitors[i].ValidateDiscoveryRule == nil {
-			c.Monitors[i].ValidateDiscoveryRule = c.ValidateDiscoveryRules
-		}
-		if c.Monitors[i].ProcPath == "" {
-			c.Monitors[i].ProcPath = c.ProcPath
-		}
-	}
-
-	anyCollectdMonitors := false
-	for i := range c.Monitors {
-		anyCollectdMonitors = anyCollectdMonitors || c.Monitors[i].IsCollectdBased()
-	}
-
-	c.Collectd.DisableCollectd = c.Collectd.DisableCollectd || !anyCollectdMonitors
-	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
-	c.Collectd.BundleDir = c.BundleDir
-
-	c.Writer.MetricsToInclude = c.MetricsToInclude
-	c.Writer.MetricsToExclude = c.MetricsToExclude
-	c.Writer.PropertiesToExclude = c.PropertiesToExclude
-	c.Writer.IngestURL = c.IngestURL
-	c.Writer.APIURL = c.APIURL
-	c.Writer.EventEndpointURL = c.EventEndpointURL
-	c.Writer.TraceEndpointURL = c.TraceEndpointURL
-	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
-	c.Writer.GlobalDimensions = c.GlobalDimensions
-	c.Writer.GlobalSpanTags = c.GlobalSpanTags
-}
-
-// CustomConfigurable should be implemented by config structs that have the
-// concept of generic other config that is initially deserialized into a
-// map[string]interface{} to be later transformed to another form.
-type CustomConfigurable interface {
-	ExtraConfig() (map[string]interface{}, error)
 }
 
 // LogConfig contains configuration related to logging
@@ -460,8 +362,7 @@ var (
 // BundlePythonHomeEnvvar returns an envvar string that sets the PYTHONHOME envvar to
 // the bundled Python runtime.  It is in a form that is ready to append to
 // cmd.Env.
-func BundlePythonHomeEnvvar() string {
-	bundleDir := os.Getenv(constants.BundleDirEnvVar)
+func BundlePythonHomeEnvvar(bundleDir string) string {
 	if runtime.GOOS == "windows" {
 		return "PYTHONHOME=" + filepath.Join(bundleDir, "python")
 	}

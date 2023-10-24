@@ -10,7 +10,7 @@ script deploys and configures:
 - Log Collection with [Fluentd (via the TD Agent)](https://www.fluentd.org/)
   - Optional, **disabled** by default
   - See the [Fluentd Configuration](#fluentd-configuration) section for additional information, including how to enable installation for [supported platforms](#supported-platforms).
-- [Splunk OpenTelemetry Auto Instrumentation for Java](https://github.com/signalfx/splunk-otel-collector/tree/main/instrumentation#linux-java-auto-instrumentation)
+- [Splunk OpenTelemetry Auto Instrumentation](https://github.com/signalfx/splunk-otel-collector/blob/main/instrumentation/README.md)
   - Optional, **disabled** by default
   - See the [Auto Instrumentation](#auto-instrumentation) section for additional information, including how to enable installation.
 
@@ -285,57 +285,135 @@ applicable for `td-agent` versions 4.1 or newer):
 
 ### Auto Instrumentation
 
->To see all supported options and defaults **before** installation, run:
->```sh
->curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
->sh /tmp/splunk-otel-collector.sh -h
->```
+[Splunk OpenTelemetry Auto Instrumentation](../../instrumentation/README.md)
+installs and supports configuration of the following Auto Instrumentation
+agent(s) to capture traces and forward them to the locally installed Collector:
+
+- [Java](https://docs.splunk.com/Observability/gdi/get-data-in/application/java/get-started.html)
+- [Node.js](https://docs.splunk.com/observability/en/gdi/get-data-in/application/nodejs/get-started.html)
+
+> To see all supported options and defaults ***before*** installation, run:
+> ```sh
+> curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
+> sh /tmp/splunk-otel-collector.sh -h
+> ```
+
+#### Prerequisites and Requirements
+
+- Check agent compatibility and requirements:
+  - [Java](https://docs.splunk.com/Observability/gdi/get-data-in/application/java/java-otel-requirements.html)
+  - [Node.js](https://docs.splunk.com/Observability/en/gdi/get-data-in/application/nodejs/nodejs-otel-requirements.html)
+    (also see [Node.js Requirements](#nodejs-requirements) for additional
+    details)
 
 #### Installation
 
-To install the Collector and the Splunk OpenTelemetry Auto Instrumentation for
-Java packages, run the installer script with the `--with-instrumentation`
-option:
+To install the Collector and the [Splunk OpenTelemetry Auto Instrumentation](
+../../instrumentation/README.md) packages, run the installer script with either
+of the following options:
+
+- `--with-instrumentation`: Install and activate the provided Auto
+  Instrumentation agent(s) for ***all*** supported processes by automatically
+  adding the `libsplunk.so` shared object library to [`/etc/ld.so.preload`](
+  https://man7.org/linux/man-pages/man8/ld.so.8.html#FILES):
+  ```sh
+  curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
+  sudo sh /tmp/splunk-otel-collector.sh --with-instrumentation --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
+  ```
+
+- `--with-systemd-instrumentation`: Install and activate the provided Auto
+  Instrumentation agent(s) for ***all*** supported `systemd` services by
+  installing a [`systemd` drop-in file](
+  https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html):
+  ```sh
+  curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
+  sudo sh /tmp/splunk-otel-collector.sh --with-systemd-instrumentation --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
+  ```
+
+By default, both the Java and Node.js Auto Instrumentation agents will be
+installed and activated. Run the installer script with either the
+`--without-java-instrumentation` or `--without-node-instrumentation` option to
+skip installation and activation of the respective agent. For example:
 ```sh
 curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
-sudo sh /tmp/splunk-otel-collector.sh --with-instrumentation --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
+sudo sh /tmp/splunk-otel-collector.sh --with-instrumentation --without-node-instrumentation --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
 ```
 
-To automatically define the optional `deployment.environment` resource
-attribute at installation time, run the installer script with the
-`--deployment-environment VALUE` option (replace `VALUE` with the desired
-attribute value, for example, `prod`):
-```sh
-curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
-sudo sh /tmp/splunk-otel-collector.sh --with-instrumentation --deployment-environment VALUE --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
-```
+Additional options include:
+- `--deployment-environment <value>`: Set the `deployment.environment` resource
+  attribute to `<value>`. If not specified, the "Environment" in the Splunk APM
+  UI will appear as "unknown" for the instrumented application(s).
+- `--service-name <name>`: Override the auto-generated service names for all
+  instrumented applications on the host with `<name>`.
+- `--enable-profiler`: Enable AlwaysOn Profiling (disabled by default).
+- `--enable-profiler-memory`: Enable AlwaysOn Memory Profiling (disabled by
+  default).
+- `--enable-metrics`: Enable instrumentation metrics collection (disabled by
+  default).
 
-**Note:** After successful installation, the Java application(s) on the host
-need to be manually started/restarted for automatic instrumentation to take
-effect.
+**Note:** After successful installation, reboot the host or manually
+start/restart the Java and/or Node.js applications/services on the host for
+Auto Instrumentation to take effect.
+
+#### Node.js Requirements
+
+If running the installer script ***with*** Node.js Auto Instrumentation, the
+following are required:
+- `npm` is required to install the Node.js Auto Instrumentation package. If
+  `npm` is not installed or not found in the user's default `PATH`, the
+  installer script will automatically skip installation and configuration of
+  the Node.js agent. Run the installer script with the
+  `--without-node-instrumentation` option to explicitly skip Node.js.
+- By default, the Node.js Auto Instrumentation package will be installed with
+  the `npm install --global` command. Run the installer script with the
+  `--npm-command "<command>"` option to specify a custom command (wrapped in
+  quotes). For example:
+  ```
+  curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
+  sudo sh /tmp/splunk-otel-collector.sh --with-instrumentation --npm-command "/path/to/npm install --prefix /my/custom/path" --realm SPLUNK_REALM -- SPLUNK_ACCESS_TOKEN
+  ```
+- Ensure that all Node.js applications/services to be instrumented have access
+  to the installation path of the Node.js Auto Instrumentation package.
+- For `arm64/aarch64` architectures, the following package groups will
+  automatically be installed in order to build/compile the Node.js Auto
+  Instrumentation package:
+  - Debian/Ubuntu: `build-essential`
+  - CentOS/Oracle/Red Hat/Amazon: `Development Tools`
+  - Suse: `devel_basis` and `devel_C_C++`
 
 #### Post-Install Configuration
 
-- The `/etc/ld.so.preload` file will be automatically created/updated with the
-  default path to the installed instrumentation library
-  (`/usr/lib/splunk-instrumentation/libsplunk.so`).  If necessary, custom
-  library paths can be manually added to this file.
-- The `/usr/lib/splunk-instrumentation/instrumentation.conf` configuration file
-  can be manually configured for resource attributes and other parameters.  By
-  default, this file will contain the `java_agent_jar` parameter set to the
-  path of the installed [Java Instrumentation Agent](
-  https://github.com/signalfx/splunk-otel-java)
-  (`/usr/lib/splunk-instrumentation/splunk-otel-javaagent.jar`).  If the
-  `--deployment-environment VALUE` installer script option was specified,
-  the `deployment.environment=VALUE` resource attribute will be automatically
-  added to this file.
+> The activation and configuration of Auto Instrumentation with the steps below
+> will be applied ***globally*** on the host, either for ***all*** supported
+> processes with the `--with-instrumentation` option, or for ***all***
+> supported `systemd` services with the `--with-systemd-instrumentation`
+> option. Configuration of individual processes/services to override the global
+> configuration will need to be managed separately and manually.
 
-See [Linux Java Auto Instrumentation](https://github.com/signalfx/splunk-otel-collector/tree/main/instrumentation#linux-java-auto-instrumentation)
-for more details.
+- If the `--with-instrumentation` option was used:
+  - The `/etc/ld.so.preload` file will be automatically created/updated with
+    the default path to the installed instrumentation library
+    (`/usr/lib/splunk-instrumentation/libsplunk.so`).  If necessary, custom
+    library paths can be manually added to this file.
+  - The `/etc/splunk/zeroconfig/java.conf` and/or
+    `/etc/splunk/zeroconfig/node.conf` configuration files will be
+    automatically created to configure the activated Auto Instrumentation
+    agent(s), and the environment variables within these files can be manually
+    configured after installation.
+  - See [System-wide Configuration](../../instrumentation/README.md#system-wide)
+    for more details.
 
-**Note:** After any configuration changes, the Java application(s) on the host
-need to be manually started/restarted to source the updated values from the
-configuration file.
+- If the `--with-systemd-instrumentation` option was used:
+  - The `/usr/lib/systemd/system.conf.d/00-splunk-otel-auto-instrumentation.conf`
+    `systemd` drop-in file will be automatically created to include environment
+    variables that configure the activated Auto Instrumentation agent(s), and
+    can be manually configured for additional environment variables.
+  - See [Systemd Configuration](../../instrumentation/README.md#systemd-services-only)
+    for more details.
+
+**Note:** After any configuration changes, reboot the host or manually
+start/restart the Java and/or Node.js applications/services on the host for the
+changes to take effect.
 
 #### Upgrade
 
@@ -346,10 +424,9 @@ system (requires `root` privileges):
   sudo apt-get update
   sudo apt-get install --only-upgrade splunk-otel-auto-instrumentation
   ```
-  **Note:** You may be prompted to keep or overwrite the configuration file at
-  `/usr/lib/splunk-instrumentation/instrumentation.conf`.  Choosing to
-  overwrite will revert this file to the default file provided by the new
-  package.
+  **Note:** You may be prompted to keep or overwrite the configuration files in
+  the `/etc/splunk/zeroconfig/` directory.  Choosing to overwrite will revert
+  these files to the default file provided by the new package.
 - RPM:
   - `yum`
     ```sh
@@ -365,8 +442,17 @@ system (requires `root` privileges):
     sudo zypper update splunk-otel-auto-instrumentation
     ```
 
-**Note:** After successful upgrade, the Java application(s) on the host need to
-be manually started/restarted in order for the changes to take effect.
+**Important**: After the `splunk-otel-auto-instrumentation` is upgraded, the
+`/usr/lib/splunk-instrumentation/libsplunk.so` shared object library path will
+automatically be removed from `/etc/ld.so.preload`, if it exists. If
+system-wide Auto Instrumentation is required, manually add the
+`/usr/lib/splunk-instrumentation/libsplunk.so` path to `/etc/ld.so.preload`.
+See [System-wide Activation](../../instrumentation/README.md#system-wide) for
+more details.
+
+**Note:** After successful upgrade, reboot the host or manually start/restart
+the Java and/or Node.js applications/services on the host for the changes to
+take effect.
 
 ### Discovery mode
 
