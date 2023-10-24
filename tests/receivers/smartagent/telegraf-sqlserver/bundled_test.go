@@ -20,7 +20,6 @@ import (
 	"path"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/signalfx/splunk-otel-collector/tests/testutils"
 )
@@ -50,7 +49,6 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				cc.Container = cc.Container.WillWaitForHealth(5 * time.Minute)
 				return cc
 			},
 			func(collector testutils.Collector) testutils.Collector {
