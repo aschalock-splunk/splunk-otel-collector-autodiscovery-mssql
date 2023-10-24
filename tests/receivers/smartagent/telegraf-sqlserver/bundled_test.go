@@ -44,7 +44,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 	containers := []testutils.Container{server, client}
 
 	//testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", containers, nil)
-	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml",
+	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml",
 		containers, []testutils.CollectorBuilder{
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
