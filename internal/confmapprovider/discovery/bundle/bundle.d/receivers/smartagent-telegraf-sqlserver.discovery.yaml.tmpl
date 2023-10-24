@@ -1,0 +1,59 @@
+{{ receiver "smartagent/telegraf-sqlserver" }}:
+  enabled: true
+  rule:
+    docker_observer: type == "container" and any([name, image, command], {# matches "(?i)mssql"}) and not (command matches "splunk.discovery")
+    host_observer: type == "hostport" and command matches "(?i)mssql"
+    k8s_observer: type == "port" and pod.name matches "(?i)mssql"
+  config:
+    default:
+      endpoint: splunk.discovery.default
+      username: splunk.discovery.default
+      password: splunk.discovery.default
+      service: splunk.discovery.default
+  status:
+    metrics:
+      successful:
+        - strict: sqlserver_database_io.read_bytes
+          first_only: true
+          log_record:
+            severity_text: info
+            body: smartagent/telegraf-sqlserver receiver is working!
+    statements:
+      failed:
+        - regexp: "msql server plugin: Failed to connect to database .* at server .* Can't connect to msql server server on .* [(]111[)]"
+          first_only: true
+          log_record:
+            severity_text: info
+            append_pattern: true
+            body: The container is refusing msql server connections.
+      partial:
+        - regexp: 'msql server plugin: Failed to connect to database .* at server .* Access denied for user .* [(]using password: .*[)]'
+          first_only: true
+          log_record:
+            severity_text: info
+            append_pattern: true
+            body: >-
+              Make sure your user credentials are correctly specified using the
+              `--set {{ configProperty "username" "<user>" }}` and
+              `--set {{ configProperty "password" "<SA_PASSWORD>" }}` command or the
+              `{{ configPropertyEnvVar "username" "<user>" }}` and
+              `{{ configPropertyEnvVar "password" "<SA_PASSWORD>" }}` environment variables.
+        - regexp: 'msql server plugin: Failed to connect to database .* at server .* Unknown database'
+          first_only: true
+          log_record:
+            severity_text: info
+            append_pattern: true
+            body: >-
+              Make sure your msql server databases are correctly specified using the
+              `--set {{ configProperty "databases" "[{name: '<db-name-0>'}, {name: '<db-name-1>', username: '<user>', password: '<SA_PASSWORD>'}]" }}` command or the
+              `{{ configPropertyEnvVar "databases" "[{name: '<db-name-0>'}, {name: '<db-name-1>', username: '<user>', password: '<SA_PASSWORD>'}]" }}` environment variable.
+        - regexp: 'msql server plugin: Failed to connect to database .* at server .* Access denied for user .* to database'
+          first_only: true
+          log_record:
+            severity_text: info
+            append_pattern: true
+            body: >-
+              Make sure your msql server databases and auth information are correctly specified using the
+              `--set {{ configProperty "databases" "[{name: '<db-name-0>'}, {name: '<db-name-1>', username: '<user>', password: '<SA_PASSWORD>'}]" }}` command or the
+              `{{ configPropertyEnvVar "databases" "[{name: '<db-name-0>'}, {name: '<db-name-1>', username: '<user>', password: '<SA_PASSWORD>'}]" }}` environment variable.
+              

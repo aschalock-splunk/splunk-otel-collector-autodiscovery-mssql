@@ -29,6 +29,7 @@ func TestBundleDir(t *testing.T) {
 	require.Equal(t, []string{
 		"bundle.d/receivers/oracledb.discovery.yaml",
 		"bundle.d/receivers/smartagent-postgresql.discovery.yaml",
+		"bundle.d/receivers/smartagent-telegraf-sqlserver.discovery.yaml",
 	}, receivers)
 
 	extensions, err := fs.Glob(BundledFS, "bundle.d/extensions/*.discovery.yaml")
