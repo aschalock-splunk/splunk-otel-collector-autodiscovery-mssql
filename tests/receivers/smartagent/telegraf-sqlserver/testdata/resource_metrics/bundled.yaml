@@ -2,8 +2,8 @@
 resource_metrics:
   - attributes:
       container.image.name: <ANY>
-      container.name: oracledb
-      oracledb.instance.name: localhost:1521/XE
+      container.name: sql-server
+      sql-server.instance.name: localhost:1443
   - scope_metrics:
       - metrics:
           - name: sqlserver_database_io.read_bytes
