@@ -19,6 +19,7 @@ package tests
 import (
 	"runtime"
 	"testing"
+
 	"github.com/signalfx/splunk-otel-collector/tests/testutils"
 )
 
@@ -47,17 +48,17 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"SPLUNK_DISCOVERY_DURATION": "10s",
 					// confirm that debug logging doesn't affect runtime
 					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
-					"SA_PASSWORD":             "Password!",
+					"SA_PASSWORD":                "Password!",
 					"splunk.discovery.default":   "Password!",
-					"ACCEPT_EULA":	"Y",
-					"HOSTNAME": "sql.example.com",
-					"login.name": "signalfxagent",
+					"ACCEPT_EULA":                "Y",
+					"HOSTNAME":                   "sql.example.com",
+					"login.name":                 "signalfxagent",
 				}).WithArgs(
 					"--discovery",
 					"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
 					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
 					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
-					"--set", `splunk.discovery.extentsion.mssql.config.username=SA_ADMIN`
+					"--set", `splunk.discovery.extentsion.mssql.config.username=SA_ADMIN`,
 				)
 			},
 		},
