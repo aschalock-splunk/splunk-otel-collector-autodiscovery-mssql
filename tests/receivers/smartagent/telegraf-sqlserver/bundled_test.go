@@ -17,7 +17,6 @@
 package tests
 
 import (
-	"fmt"
 	"path"
 	"runtime"
 	"testing"
@@ -51,8 +50,6 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
-				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 				cc.Container = cc.Container.WillWaitForHealth(5 * time.Minute)
 				return cc
 			},
@@ -62,9 +59,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"SPLUNK_DISCOVERY_DURATION": "10s",
 					// confirm that debug logging doesn't affect runtime
 					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
-					"SA_PASSWORD":                "Password!",
 					"splunk.discovery.default":   "Password!",
-					"ACCEPT_EULA":                "Y",
 					"HOSTNAME":                   "sql.example.com",
 					"login.name":                 "signalfxagent",
 				}).WithArgs(
@@ -73,6 +68,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
 					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
 					"--set", `splunk.discovery.extentsion.mssql.config.username=SA_ADMIN`,
+					"--set", `splunk.discovery.extentsion.mssql.config.login.name=signalfxagent`,
 				)
 			},
 		},
