@@ -17,7 +17,6 @@
 package tests
 
 import (
-	"fmt"
 	"runtime"
 	"testing"
 
@@ -37,10 +36,18 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
-				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
+				// cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
+				// cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 				return cc
-			}
+			},
+			func(collector testutils.Collector) testutils.Collector {
+				return collector.WithEnv(map[string]string{
+					"SPLUNK_DISCOVERY_DURATION": "10s",
+					// confirm that debug logging doesn't affect runtime
+					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
+					"MSSQL_PASSWORD":             "Password!",
+				}).WithArgs()
+			},
 		},
 	)
 }
