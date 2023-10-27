@@ -1,0 +1,24 @@
+#####################################################################################
+#                               Do not edit manually!                               #
+# All changes must be made to associated .tmpl file before running 'make bundle.d'. #
+#####################################################################################
+smartagent/telegraf-sqlserver:
+  enabled: true
+  rule:
+    docker_observer: type == "container" and any([name, image, command], {# matches "(?i)sqlservr|mssql"}) and not (command matches "splunk.discovery")
+    host_observer: type == "hostport" and command matches "(?i)sqlservr|mssql|1443"
+    k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|mssql|1443"
+  config:
+    default:
+      endpoint: splunk.discovery.default
+      username: splunk.discovery.default
+      password: splunk.discovery.default
+      service: splunk.discovery.default
+  status:
+    metrics:
+      successful:
+        - strict: sqlserver_database_io.read_bytes
+          first_only: true
+          log_record:
+            severity_text: info
+            body: smartagent/telegraf-sqlserver receiver is working!
