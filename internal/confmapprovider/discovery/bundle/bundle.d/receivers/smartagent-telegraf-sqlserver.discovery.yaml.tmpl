@@ -2,8 +2,8 @@
   enabled: true
   rule:
     docker_observer: type == "container" and any([name, image, command], {# matches "(?i)sqlservr|mssql"}) and not (command matches "splunk.discovery")
-    host_observer: type == "hostport" and command matches "(?i)1443"
-    k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|mssql"
+    host_observer: type == "hostport" and command matches "(?i)sqlservr|mssql|1443"
+    k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|mssql|1443"
   config:
     default:
       endpoint: splunk.discovery.default
