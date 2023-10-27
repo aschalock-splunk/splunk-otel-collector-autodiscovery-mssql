@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/signalfx/splunk-otel-collector/tests/testutils"
 )
@@ -32,13 +31,12 @@ func TestMssqlDockerObserver(t *testing.T) {
 	}
 
 	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml",
-		containers, []testutils.CollectorBuilder{
+		oracledb, []testutils.CollectorBuilder{
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				//cc.Container = cc.Container.WillWaitForLogs("Starting GRPC server")
+				cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
 				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
-				cc.Container = cc.Container.WithStartupTimeout(time.Minute * 5)
 				return cc
 			},
 			func(collector testutils.Collector) testutils.Collector {
@@ -46,18 +44,8 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"SPLUNK_DISCOVERY_DURATION": "10s",
 					// confirm that debug logging doesn't affect runtime
 					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
-					"MS_SQL_PASSWORD":            "Password!",
-					//"HOSTNAME":                   "sql.example.com",
-					//"login.name: "signalfxagent",
-				}).WithArgs(
-					"--discovery",
-					//"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
-					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
-					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
-					"--set", `splunk.discovery.receivers.mssql.config.username=signalfxagent`,
-					"--set", `splunk.discovery.receivers.mssql.config.login.name=signalfxagent`,
-					"--set", `splunk.discovery.receivers.mssql.config.password='${MS_SQL_PASSWORD}'`,
-				)
+					"MSSQL_PASSWORD":             "Password!",
+				}).WithArgs()
 			},
 		},
 	)
