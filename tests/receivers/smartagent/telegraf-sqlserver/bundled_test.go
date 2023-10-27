@@ -49,12 +49,12 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"MSSQL_PASSWORD":             "Password!",
 				}).WithArgs(
 					"--discovery",
-					//"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
-					// "--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
-					// "--set", `splunk.discovery.extensions.host_observer.enabled=false`,
-					// "--set", `splunk.discovery.receivers.mssql.config.username=signalfxagent`,
-					// "--set", `splunk.discovery.receivers.mssql.config.login.name=signalfxagent`,
-					// "--set", `splunk.discovery.receivers.mssql.config.password='${MS_SQL_PASSWORD}'`,
+					"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
+					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
+					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
+					"--set", `splunk.discovery.receivers.mssql.config.username=signalfxagent`,
+					"--set", `splunk.discovery.receivers.mssql.config.login.name=signalfxagent`,
+					"--set", `splunk.discovery.receivers.mssql.config.password='${MS_SQL_PASSWORD}'`,
 				)
 			},
 		},
