@@ -10,41 +10,4 @@
       username: splunk.discovery.default
       password: splunk.discovery.default
       service: splunk.discovery.default
-  status:
-    metrics:
-      successful:
-        - strict: sqlserver_database_io.read_bytes
-          first_only: true
-          log_record:
-            severity_text: info
-            body: smartagent/telegraf-sqlserver receiver is working!
-    statements:
-      failed:
-        - regexp: "msql server plugin: Failed to connect to database .* at server .* Can't connect to msql server server on .* [(]111[)]"
-          first_only: true
-          log_record:
-            severity_text: info
-            append_pattern: true
-            body: The container is refusing msql server connections.
-      partial:
-        - regexp: 'msql .* password .*]'
-          first_only: true
-          log_record:
-            severity_text: info
-            append_pattern: true
-            body: >-
-              Make sure your user credentials are correctly specified
-        - regexp: 'msql .* Failed .*'
-          first_only: true
-          log_record:
-            severity_text: info
-            append_pattern: true
-            body: >-
-              Something Failed
-        - regexp: 'msql  .* Access denied .*'
-          first_only: true
-          log_record:
-            severity_text: info
-            append_pattern: true
-            body: >-
-              Make sure your msql server databases and auth information are correctly specified.
+  
