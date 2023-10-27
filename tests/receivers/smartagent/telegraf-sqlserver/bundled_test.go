@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -36,8 +37,8 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-				cc.Container = cc.Container.WillWaitForLogs("Starting GRPC server")
-				// cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
+				//cc.Container = cc.Container.WillWaitForLogs("Starting GRPC server")
+				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 				return cc
 			},
 			func(collector testutils.Collector) testutils.Collector {
