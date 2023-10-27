@@ -31,7 +31,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 	}
 
 	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml",
-		oracledb, []testutils.CollectorBuilder{
+		mssql_containers, []testutils.CollectorBuilder{
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")

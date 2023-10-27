@@ -31,9 +31,9 @@ var client = testutils.NewContainer().WithContext(
 	path.Join(".", "testdata", "client"),
 ).WithName("sql-client").WithNetworks("mssql").WillWaitForLogs("name", "signalfxagent")
 
-var containers = []testutils.Container{server, client}
+var mssql_containers = []testutils.Container{server, client}
 
 func TestTelegrafSQLServerReceiverProvidesAllMetrics(t *testing.T) {
 
-	testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", containers, nil)
+	testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", mssql_containers, nil)
 }
