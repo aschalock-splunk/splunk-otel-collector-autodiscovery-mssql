@@ -10,4 +10,11 @@
       username: splunk.discovery.default
       password: splunk.discovery.default
       service: splunk.discovery.default
-  
+  status:
+    metrics:
+      successful:
+        - strict: sqlserver_database_io.read_bytes
+          first_only: true
+          log_record:
+            severity_text: info
+            body: smartagent/telegraf-sqlserver receiver is working!

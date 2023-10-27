@@ -35,5 +35,12 @@ var mssql_containers = []testutils.Container{server, client}
 
 func TestTelegrafSQLServerReceiverProvidesAllMetrics(t *testing.T) {
 
-	testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", mssql_containers, nil)
+	//testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml", mssql_containers, nil)
+	testutils.AssertAllMetricsReceived(t, "all.yaml", "all_metrics_config.yaml",
+		mssql_containers, []testutils.CollectorBuilder{
+			func(collector testutils.Collector) testutils.Collector {
+				return collector.WithEnv(map[string]string{"MSSQLDB_URL": "mssql://otel:Password!@localhost:1443"})
+			},
+		},
+	)
 }
