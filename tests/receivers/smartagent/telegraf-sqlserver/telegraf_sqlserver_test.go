@@ -19,14 +19,13 @@ package tests
 import (
 	"path"
 	"testing"
-	"time"
 
 	"github.com/signalfx/splunk-otel-collector/tests/testutils"
 )
 
 var server = testutils.NewContainer().WithContext(
 	path.Join(".", "testdata", "server"),
-).WithExposedPorts("1433:1433").WithName("sql-server").WithNetworks("mssql").WillWaitForPorts("1433").WillWaitForLogs("SQL Server is now ready for client connections.", "Recovery is complete.").WillWaitForHealth(5 * time.Minute)
+).WithExposedPorts("1433:1433").WithName("sql-server").WithNetworks("mssql").WillWaitForPorts("1433").WillWaitForLogs("SQL Server is now ready for client connections.", "Recovery is complete.")
 
 var client = testutils.NewContainer().WithContext(
 	path.Join(".", "testdata", "client"),

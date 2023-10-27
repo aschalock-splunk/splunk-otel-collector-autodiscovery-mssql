@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"fmt"
 	"runtime"
 	"testing"
 	"time"
@@ -35,6 +36,8 @@ func TestMssqlDockerObserver(t *testing.T) {
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
 				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
+				cc.Container = cc.Container.WillWaitForLogs("Starting GRPC server")
+				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 				cc.Container = cc.Container.WithStartupTimeout(time.Minute * 5)
 				return cc
 			},
@@ -54,7 +57,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
 					"--set", `splunk.discovery.receivers.mssql.config.username=SA_ADMIN`,
 					"--set", `splunk.discovery.receivers.mssql.config.login.name=signalfxagent`,
-				)
+				).WithStartupTimeout(time.Minute * 5)
 			},
 		},
 	)
