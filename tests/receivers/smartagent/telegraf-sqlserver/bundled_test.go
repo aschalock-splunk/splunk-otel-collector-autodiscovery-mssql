@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -29,26 +30,26 @@ func TestMssqlDockerObserver(t *testing.T) {
 		t.Skip("unable to share sockets between mac and d4m vm: https://github.com/docker/for-mac/issues/483#issuecomment-758836836")
 	}
 
-	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml", mssql_containers, nil)
+	//testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml", mssql_containers, nil)
 
-	// testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml",
-	// 	mssql_containers, []testutils.CollectorBuilder{
-	// 		func(c testutils.Collector) testutils.Collector {
-	// 			cc := c.(*testutils.CollectorContainer)
-	// 			cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
-	// 			//cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
-	// 			cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
+	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml",
+		mssql_containers, []testutils.CollectorBuilder{
+			func(c testutils.Collector) testutils.Collector {
+				cc := c.(*testutils.CollectorContainer)
+				cc.Container = cc.Container.WithBinds("/var/run/docker.sock:/var/run/docker.sock:ro")
+				cc.Container = cc.Container.WillWaitForLogs("Discovering for next")
+				cc.Container = cc.Container.WithUser(fmt.Sprintf("999:%d", testutils.GetDockerGID(t)))
 
-	// 			return cc
-	// 		},
-	// 		func(collector testutils.Collector) testutils.Collector {
-	// 			return collector.WithEnv(map[string]string{
-	// 				"SPLUNK_DISCOVERY_DURATION": "10s",
-	// 				// confirm that debug logging doesn't affect runtime
-	// 				"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
-	// 				"MSSQL_PASSWORD":             "Password!",
-	// 			}).WithArgs()
-	// 		},
-	// 	},
-	// )
+				return cc
+			},
+			func(collector testutils.Collector) testutils.Collector {
+				return collector.WithEnv(map[string]string{
+					"SPLUNK_DISCOVERY_DURATION": "10s",
+					// confirm that debug logging doesn't affect runtime
+					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
+					"MSSQL_PASSWORD":             "Password!",
+				}).WithArgs()
+			},
+		},
+	)
 }
