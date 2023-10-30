@@ -18,3 +18,11 @@
           log_record:
             severity_text: info
             body: smartagent/telegraf-sqlserver receiver is working!
+    statements:
+      failed:
+        - regexp: "unable to open tcp connection with host"
+          first_only: true
+          log_record:
+            severity_text: info
+            append_pattern: true
+            body: The container is not serving http connections.
