@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/signalfx/splunk-otel-collector/tests/testutils"
-	"go.uber.org/zap"
 )
 
 func TestMssqlDockerObserver(t *testing.T) {
@@ -43,7 +42,6 @@ func TestMssqlDockerObserver(t *testing.T) {
 				return cc
 			},
 			func(collector testutils.Collector) testutils.Collector {
-				Logger.Debug("Returning Collector", zap.String("stdout", sout.String()), zap.String("stderr", serr.String()))
 				return collector.WithEnv(map[string]string{
 					"SPLUNK_DISCOVERY_DURATION": "10s",
 					// confirm that debug logging doesn't affect runtime
