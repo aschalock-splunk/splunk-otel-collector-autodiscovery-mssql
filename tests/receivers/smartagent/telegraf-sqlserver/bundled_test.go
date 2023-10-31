@@ -43,18 +43,18 @@ func TestMssqlDockerObserver(t *testing.T) {
 			},
 			func(collector testutils.Collector) testutils.Collector {
 				return collector.WithEnv(map[string]string{
-					"SPLUNK_DISCOVERY_DURATION": "10s",
+					"SPLUNK_DISCOVERY_DURATION": "20s",
 					// confirm that debug logging doesn't affect runtime
 					"SPLUNK_DISCOVERY_LOG_LEVEL": "debug",
 					"MSSQL_PASSWORD":             "Password!",
 				}).WithArgs(
 					"--discovery",
-					"--set", "splunk.discovery.receivers.mssql.config.endpoint=localhost:1433",
+					"--set", "splunk.discovery.receivers.sqlserver.config.endpoint=localhost:1433",
 					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
 					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
-					"--set", `splunk.discovery.receivers.mssql.config.username=signalfxagent`,
-					"--set", `splunk.discovery.receivers.mssql.config.login.name=signalfxagent`,
-					"--set", `splunk.discovery.receivers.mssql.config.password='${MS_SQL_PASSWORD}'`,
+					"--set", `splunk.discovery.receivers.sqlserver.config.username=signalfxagent`,
+					"--set", `splunk.discovery.receivers.sqlserver.config.login.name=signalfxagent`,
+					"--set", `splunk.discovery.receivers.sqlserver.config.password='${MS_SQL_PASSWORD}'`,
 				)
 			},
 		},
