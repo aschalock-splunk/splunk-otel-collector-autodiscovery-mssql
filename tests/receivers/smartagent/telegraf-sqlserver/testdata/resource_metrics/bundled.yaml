@@ -1,11 +1,14 @@
-
 resource_metrics:
   - attributes:
       container.image.name: <ANY>
       container.name: sql-server
       sql-server.instance.name: localhost:1443
-  - scope_metrics:
-      - metrics:
+    scope_metrics:
+      - instrumentation_scope:
+          attributes: {}
+          name: smartagent/telegraf-sqlserver
+          version: <VERSION_FROM_BUILD>
+        metrics:
           - name: sqlserver_database_io.read_bytes
             type: IntGauge
           - name: sqlserver_database_io.read_latency_ms
