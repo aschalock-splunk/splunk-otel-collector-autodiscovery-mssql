@@ -2,7 +2,7 @@ resource_metrics:
   - attributes:
       container.image.name: <ANY>
       container.name: sql-server
-      sql-server.instance.name: localhost:1443
+      sql-server.instance.name: <ANY>
     scope_metrics:
       - instrumentation_scope:
           attributes: {}
