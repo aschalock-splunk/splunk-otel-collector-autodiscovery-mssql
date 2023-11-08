@@ -7,7 +7,6 @@ receivers:
     password: Password!
     extraMetrics: ["*"]
     intervalSeconds: 1
-    clusterName: testCluster
 
 exporters:
   otlp:
