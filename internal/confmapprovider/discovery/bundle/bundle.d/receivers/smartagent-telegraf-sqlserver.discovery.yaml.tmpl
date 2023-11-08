@@ -6,7 +6,7 @@
     k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|sql-server|1443"
   config:
     default:
-      type: sqlserver
+      type: telegraf/sqlserver
       endpoint: {{ defaultValue }}
       username: {{ defaultValue }}
       password: {{ defaultValue }}
