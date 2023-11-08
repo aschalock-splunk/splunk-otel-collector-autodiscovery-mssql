@@ -2,7 +2,6 @@ resource_metrics:
   - attributes:
     scope_metrics:
       - instrumentation_scope:
-          attributes: {}
           name: smartagent/telegraf-sqlserver
           version: <VERSION_FROM_BUILD>
         metrics:
