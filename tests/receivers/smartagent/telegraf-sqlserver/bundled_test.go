@@ -33,7 +33,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 	//testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml", mssql_containers, nil)
 	//otlp_exporter.yaml
 
-	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "otlp_exporter.yaml",
+	testutils.AssertAllMetricsReceived(t, "bundled.yaml", "all_metrics_config.yaml",
 		mssql_containers, []testutils.CollectorBuilder{
 			func(c testutils.Collector) testutils.Collector {
 				cc := c.(*testutils.CollectorContainer)
@@ -51,9 +51,9 @@ func TestMssqlDockerObserver(t *testing.T) {
 				}).WithArgs(
 					"--discovery",
 					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.host=localhost:1433",
-					"--set", `splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.userId=signalfxagent`,
+					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.userId=signalfxagent",
 					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.password='${MS_SQL_PASSWORD}'",
-					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.service=sql-server",
+					// "--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.service=sql-server",
 					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
 					"--set", `splunk.discovery.extensions.host_observer.enabled=false`,
 				)

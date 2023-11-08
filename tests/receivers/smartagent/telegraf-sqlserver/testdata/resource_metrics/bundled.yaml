@@ -2,8 +2,8 @@ resource_metrics:
   - attributes:
     scope_metrics:
       - instrumentation_scope:
-          name: smartagent/telegraf-sqlserver
-          version: <VERSION_FROM_BUILD>
+          # name: smartagent/telegraf-sqlserver
+          # version: <VERSION_FROM_BUILD>
         metrics:
           - name: sqlserver_database_io.read_bytes
             type: IntGauge
