@@ -9,15 +9,15 @@
 # smartagent/telegraf-sqlserver:
 #   enabled: true
 #   rule:
-#     docker_observer: type == "container" and any([name, image, command], {# matches "(?i)sqlservr|mssql"}) and not (command matches "splunk.discovery")
-#     host_observer: type == "hostport" and command matches "(?i)sqlservr|mssql|1443"
-#     k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|mssql|1443"
+#     docker_observer: type == "container" and any([name, image, command], {# matches "(?i)sqlservr|sql-server"}) and not (command matches "splunk.discovery")
+#     host_observer: type == "hostport" and command matches "(?i)sqlservr|sql-server|1443"
+#     k8s_observer: type == "port" and pod.name matches "(?i)sqlservr|sql-server|1443"
 #   config:
 #     default:
-#       endpoint: splunk.discovery.default
-#       username: splunk.discovery.default
+#       type: telegraf/sqlserver
+#       host: splunk.discovery.default
+#       userId: splunk.discovery.default
 #       password: splunk.discovery.default
-#       service: splunk.discovery.default
 #   status:
 #     metrics:
 #       successful:
@@ -26,3 +26,11 @@
 #           log_record:
 #             severity_text: info
 #             body: smartagent/telegraf-sqlserver receiver is working!
+#     statements:
+#       failed:
+#         - regexp: "unable to open tcp connection with host"
+#           first_only: true
+#           log_record:
+#             severity_text: info
+#             append_pattern: true
+#             body: The container is not serving http connections.
