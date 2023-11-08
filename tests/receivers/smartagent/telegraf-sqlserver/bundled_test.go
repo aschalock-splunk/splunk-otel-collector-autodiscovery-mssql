@@ -51,7 +51,7 @@ func TestMssqlDockerObserver(t *testing.T) {
 				}).WithArgs(
 					"--discovery",
 					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.host=localhost:1433",
-					"--set", `splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.userID=signalfxagent`,
+					"--set", `splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.userId=signalfxagent`,
 					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.password='${MS_SQL_PASSWORD}'",
 					"--set", "splunk.discovery.receivers.smartagent/telegraf/sqlserver.config.service=sql-server",
 					"--set", `splunk.discovery.extensions.k8s_observer.enabled=false`,
